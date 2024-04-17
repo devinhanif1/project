@@ -1,0 +1,93 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("movie.csv")
+
+# Ensure 'revenue', 'runtime', and 'budget' are in numeric format
+df['revenue'] = pd.to_numeric(df['revenue'], errors='coerce')
+df['runtime'] = pd.to_numeric(df['runtime'], errors='coerce')
+df['budget'] = pd.to_numeric(df['budget'], errors='coerce')
+
+
+df['genres'] = df['genres'].apply(lambda x: x.split(',') if isinstance(x, str) else [])
+df['production_countries'] = df['production_countries'].apply(lambda x: x.split(',') if isinstance(x, str) else [])
+
+df.drop(columns=['backdrop_path', 'homepage', 'imdb_id', 'poster_path', 'tagline'], inplace=True)
+
+# Assuming the splitting is already done for 'genres' and 'production_countries',
+# and we need to do similar for 'production_companies' (if not done):
+df['production_companies'] = df['production_companies'].apply(lambda x: x.split(',') if isinstance(x, str) else [])
+
+# Create up to three genre columns
+df['genre1'] = df['genres'].apply(lambda x: x[0] if len(x) > 0 else None).astype('category')
+df['genre2'] = df['genres'].apply(lambda x: x[1] if len(x) > 1 else None).astype('category')
+df['genre3'] = df['genres'].apply(lambda x: x[2] if len(x) > 2 else None).astype('category')
+
+# Create up to two production company columns
+df['production_company1'] = df['production_companies'].apply(lambda x: x[0] if len(x) > 0 else None)
+df['production_company2'] = df['production_companies'].apply(lambda x: x[1] if len(x) > 1 else None)
+
+# Create up to two production country columns
+df['production_country1'] = df['production_countries'].apply(lambda x: x[0] if len(x) > 0 else None)
+df['production_country2'] = df['production_countries'].apply(lambda x: x[1] if len(x) > 1 else None)
+
+# This code should come before your lambda function that's causing the error.
+df['spoken_languages'] = df['spoken_languages'].apply(lambda x: x.split(',') if isinstance(x, str) else [])
+df['spoken_language1'] = df['spoken_languages'].apply(lambda x: x[0] if len(x) > 0 else None)
+df['spoken_language2'] = df['spoken_languages'].apply(lambda x: x[1] if len(x) > 1 else None)
+df['spoken_language3'] = df['spoken_languages'].apply(lambda x: x[2] if len(x) > 2 else None)
+df['spoken_language4'] = df['spoken_languages'].apply(lambda x: x[3] if len(x) > 3 else None)
+
+# Converting all 'genre' and 'production' related columns to categorical data types
+df['genre1'] = df['genre1'].astype('category')
+df['genre2'] = df['genre2'].astype('category')
+df['genre3'] = df['genre3'].astype('category')
+
+df['production_company1'] = df['production_company1'].astype('category')
+df['production_company2'] = df['production_company2'].astype('category')
+
+df['production_country1'] = df['production_country1'].astype('category')
+df['production_country2'] = df['production_country2'].astype('category')
+
+# Similar conversion applied to all 'spoken_language' columns
+df['spoken_language1'] = df['spoken_language1'].astype('category')
+df['spoken_language2'] = df['spoken_language2'].astype('category')
+df['spoken_language3'] = df['spoken_language3'].astype('category')
+df['spoken_language4'] = df['spoken_language4'].astype('category')
+
+df.drop(columns=['genres', 'production_companies', 'production_countries', 'spoken_languages'], inplace=True)
+
+
+# Convert 'release_date' column to datetime format
+df['release_date'] = pd.to_datetime(df['release_date'], errors='coerce')
+
+# Print the first few rows to confirm the conversion
+print(df['release_date'].head())
+
+
+# Ensure 'popularity' is in numeric format
+df['popularity'] = pd.to_numeric(df['popularity'], errors='coerce')
+
+
+# Print summary statistics to confirm standardization
+print(df[['revenue', 'runtime', 'budget', 'popularity']].describe())
+
+df['profit'] = df['revenue'] - df['budget']
+
+print(df['profit'])
+
+# List of all required columns
+required_columns = [
+    'id', 'vote_average', 'vote_count', 'release_date',
+    'revenue', 'runtime', 'budget', 'profit',
+    'genre1', 'genre2', 'genre3',
+    'production_company1', 'production_company2',
+    'production_country1', 'production_country2',
+    'spoken_language1', 'spoken_language2', 'spoken_language3', 'spoken_language4'
+]
+# Filter the DataFrame to keep only the required columns
+new_df = df[required_columns].copy()
+# Show the first few rows to verify
+print(new_df)
+# Save the modified DataFrame to a new CSV file
+new_df.to_csv("modified_movie.csv", index=False)
