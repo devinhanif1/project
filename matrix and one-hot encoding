@@ -1,0 +1,47 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("modified_movie2.csv")
+
+# Remove rows with zero vote count
+df = df[df['vote_count'] !=0]
+
+# Select relevant columns
+df1 = df[['popularity','vote_average', 'vote_count', 'revenue', 'runtime', 'budget', 'profit']]
+
+# One-hot encode genres
+genres_encoded = pd.get_dummies(df[['genre1', 'genre2', 'genre3']], drop_first=True)
+
+df_final = pd.concat([df1, genres_encoded], axis=1)
+
+print(df1)
+
+print(df_final.dtypes)
+
+# Convert boolean columns to integers
+
+for column in df_final.columns:
+    if df_final[column].dtype == 'bool':
+        df_final[column] = df_final[column].astype(int)
+
+
+
+# Convert DataFrame to numpy array
+
+matrix_np = df_final.to_numpy()
+
+print(matrix_np)
+
+# Extract data from index 1 and index 3
+data_index_1 = matrix_np[:, 1]
+data_index_3 = matrix_np[:, 3]
+
+# Create a scatter plot
+plt.figure(figsize=(8, 6))
+plt.scatter(data_index_1, data_index_3, alpha=0.5)
+plt.title('Relationship between Vote Average and Revenue')
+plt.xlabel('Vote Average')
+plt.ylabel('Revenue')
+plt.grid(True)
+plt.show()
